@@ -1,0 +1,268 @@
+# About this report
+
+This content has been loaded from the template report `.Rmd` file. Please edit it at your best convenience!
+
+
+```{r setup, include=FALSE, eval = TRUE, echo = FALSE}
+opts_chunk$set(
+  echo=input$report_echo,
+  error=TRUE
+)
+```
+
+
+```{r, echo = FALSE}
+evalDEA <- FALSE
+
+if (exists("DEA")) {
+  if(!is.null(DEA$res)){
+    evalDEA <- TRUE}
+  }
+```
+
+# Overview on the data
+
+The data provided was used to construct the following objects
+
+## Samples Selected
+
+The following samples were selected in this analysis : 
+
+<button title="Click to show answer" type="button" onclick="if(document.getElementById('BE_Genus_C.txt') .style.display=='none') {document.getElementById('BE_Genus_C.txt') .style.display=''}else{document.getElementById('BE_Genus_C.txt') .style.display='none'}">Show/hide</button>
+<div id="BE_Genus_C.txt" style="display:none">
+```{r, echo = FALSE}
+
+kableExtra::kable(SamplesInfoR$metadata$PDX_model)
+
+```
+</div>
+
+
+
+### Samples Infos 
+
+```{r, echo = FALSE}
+
+write.table(SamplesInfoR$metadata,file = "/tmp/SamplesInfo.csv",sep = ",",quote = FALSE)
+br()
+xfun::embed_files(path = "/tmp/SamplesInfo.csv", text = "Samples Info file")
+
+```
+
+### Tumor subtypes 
+
+```{r, echo = FALSE}
+
+Tsub_interactive <- ggplot(SamplesInfoR$metadata) +
+  aes(x = `Tumor_subtype`, fill =`Tumor_subtype`,tooltip = ..count..) +
+  geom_bar() +
+  labs(x = "Tumor subtype") +
+  coord_flip() +
+  theme_gdocs()
+
+  plot(Tsub_interactive)
+
+```
+
+## IHC
+
+```{r, echo = FALSE}
+
+
+  IHCinteractive <- ggplot(SamplesInfoR$metadata) +
+    aes(x = `IHC/patient`, fill =`IHC/patient`,tooltip = ..count..) +
+    geom_bar() +
+    labs(x = "IHC/patient") +
+    theme(legend.position = "none") +
+    coord_flip() +
+    theme_gdocs()
+
+  plot(IHCinteractive)
+
+```
+  
+### CNV Technologies distribution
+  
+```{r, echo = FALSE}
+
+    TechnoPlot <- ggplot(CNVInfoR$metadata) +
+    aes(x = `Technology`, fill = `dataset KDI`,tooltip = ..count..) +
+    geom_bar() +
+    labs(x = "Technology") +
+    coord_flip() +
+    theme_gdocs()
+
+plot(TechnoPlot)
+  
+```  
+  
+### Cisplatin response
+  
+  
+```{r, echo = FALSE}
+
+
+Cisplatin <- ggplot(SamplesInfoR$metadata) +
+  aes(x = `Cisplatin_response`, fill = `labelsCisplatin_response`,tooltip = ..count..) +
+  geom_bar_interactive() +
+  labs(x = "Cisplatin Response") +
+  coord_flip() +
+  theme_gdocs() +
+  theme(legend.title = element_blank())
+
+plot(Cisplatin)
+
+```
+ 
+```{r,echo = FALSE}
+
+reacAC <- reactive({
+
+
+ AC <- ggplot(SamplesInfoR$metadata) +
+    aes(x = `AC_response`, fill = `labelsAC_response`,tooltip = ..count..) +
+    geom_bar_interactive() +
+    labs(x = "AC response") +
+    coord_flip() +
+    theme_gdocs() +
+    theme(legend.title = element_blank())
+
+  legend_AC <- get_legend(
+    AC +
+      guides(color = guide_legend(nrow = 1, keywidth = 5)) +
+      theme(legend.position = "top", legend.key.size = unit(2, "cm"),
+            legend.box.just ="left",
+            legend.title = element_blank(),
+            legend.direction = "horizontal",
+            legend.spacing.x = unit(1.0, 'cm') )
+
+  )
+  return(list(AC,legend_AC))
+  
+})
+
+
+
+  girafe(code = {print(reacAC()[1])})
+  
+  
+```
+  
+## RNASeq
+
+```{r, echo = FALSE}
+
+write.table(Rawdata$table,file = "/tmp/Rawdata.csv",sep = ",",quote = FALSE)
+br()
+xfun::embed_files(path = "/tmp/Rawdata.csv", text = "Raw counts matrix")
+br()
+write.table(Rawdata$table,file = "/tmp/Metadata.csv",sep = ",",quote = FALSE)
+xfun::embed_files(path = "/tmp/Metadata.csv", text = "Metadata matrix")
+
+
+
+```
+
+
+# Results 
+
+## RNAseq
+
+### Design
+
+The following design was used:
+
+```{r, echo = FALSE,warning=FALSE}
+if (!is.null(Model$formula)){
+#DT::datatable(Model$contrast,options = list(scrollX=TRUE))
+print(Model$formula)
+
+}
+```
+
+### Up-regulated Genes
+
+
+<button title="Click to show answer" type="button" onclick="if(document.getElementById('UPPS') .style.display=='none') {document.getElementById('UPPS') .style.display=''}else{document.getElementById('UPPS') .style.display='none'}">Show/hide</button>
+<div id="UPPS" style="display:none">
+```{r, echo = FALSE, warning=FALSE, eval = evalDEA }
+
+
+kableExtra::kable(DEA$up) %>%
+kable_styling() #%>%
+# kableExtra::column_spec(1:ncol(DEA$up),width = "80em", bold = FALSE, italic = FALSE)
+
+#DT::datatable(DEA$up,options = list(scrollX=TRUE))
+```
+
+```{r, echo = FALSE, warning=FALSE, eval = evalDEA }
+
+write.table(DEA$up,file = "/tmp/Upp_regulated",sep = ",",quote = FALSE)
+xfun::embed_files(path = "/tmp/Upp_regulated", text = "Upp regulated genes")
+
+```
+
+```{r, echo = FALSE, warning=FALSE, eval= !evalDEA }
+
+print("Please Run Differential expression analysis first")
+
+```
+</div>
+
+
+
+# About PDXApp
+
+`PDXApp` is a package containing a Shiny application for
+analyzing Patient-Derived-Xenograft data in different conditions and experimental factors.
+
+`PDXApp` was developed by the bio-informatic platform of the Curie's Institute (France). 
+
+## Developers
+
+`PDXApp` is currently maintained by Clément BENOIT and Pierre Gestraud at the Bioinformatic Platform (Institut Curie) (https://curie.fr/).
+You can contact them by clicking on the buttons below.
+
+<a href="mailto:mailto:pierre.gestraud@curie.fr?subject=[PDXApp_feedback]" class="btn btn-primary">Pierre Gestraud</a>
+
+<a href="mailto:mailto:clement.benoit@curie.fr?subject=[PDXApp_feedback]" class="btn btn-primary">Clement BENOIT</a>
+
+
+# Citation info
+
+If you use `PDXApp` for your analysis, please cite it as here below:
+
+```{r}
+citation("PdxAppPackage")
+```
+
+# Session Information
+
+```{r}
+sessionInfo()
+```
+
+```{r, echo = FALSE}
+library(shiny)
+footertemplate <- function(){
+  tags$div(
+    class = "footer",
+    style = "text-align:center",
+    tags$div(
+      class = "foot-inner",
+      list(
+        hr(),
+        "This report was generated with", tags$a(href="http://bioconductor.org/packages/PDXApp/", "PDXApp"), br(),
+        "PDXApp is a project developed by Celine Vallot, Nicolas Servant, Pierre Gestraud, Marangoni Elisabetta and Clement Benoit in the Institut Curie : ",
+        br(),
+        tags$a(href="https://science.curie.fr/recherche/developpement-cancer-genetique-epigenetique/dynamique-de-linformation-genetique/equipe-vallot/","Vallot Team"),
+        br(),
+        tags$a(href="https://science.curie.fr/recherche/developpement-cancer-genetique-epigenetique/dynamique-de-linformation-genetique/equipe-vallot/","Bioinformatic Platform (Institut Curie)"),br())
+      )
+    )
+}
+```
+
+```{r, echo = FALSE}
+footertemplate()
+```

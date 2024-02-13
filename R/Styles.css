@@ -1,0 +1,42 @@
+css <-
+"
+a#more-apps-by-dean {
+display: none;
+}
+body {
+background: #fff;
+}
+.container {
+margin: 0;
+padding: 15px;
+}
+.green {
+background: green;
+}
+#expr-container .selectize-input {
+  font-size: 24px;
+line-height: 24px;
+}
+#expr-container .selectize-dropdown {
+font-size: 20px;
+line-height: 26px;
+}
+#expr-container .selectize-dropdown-content {
+max-height: 225px;
+padding: 0;
+}
+#expr-container .selectize-dropdown-content .option {
+border-bottom: 1px dotted #ccc;
+}
+#submitExpr {
+font-weight: bold;
+font-size: 18px;
+padding: 5px 20px;
+}
+#helpText {
+font-size: 18px;
+}
+#btn {
+font-size: 20px;
+}
+"
